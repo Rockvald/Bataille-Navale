@@ -1,11 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
 import React from 'react';
 import { Component } from 'react/cjs/react.production.min';
 import { NavigationContainer } from '@react-navigation/native';

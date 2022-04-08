@@ -30,6 +30,11 @@ class Menu extends Component {
         );
 
         this.recupPartiesAttenteJoueur = setInterval(() => {
+            // Mise à jour du pseudo en cas de modification de celui-ci
+            if (this.state.pseudo !== this.props.route.params.pseudo) {
+                this.setState(s => s.pseudo = this.props.route.params.pseudo);
+            }
+
             fetch(urlBase + '/partie/attentejoueur').then(
                 ret => ret.json().then(
                     rep => {
