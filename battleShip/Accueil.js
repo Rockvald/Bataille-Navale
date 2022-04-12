@@ -40,7 +40,7 @@ class Accueil extends Component {
             <ImageBackground source={require('./assets/Background/background.png')} resizeMode="cover" style={{height: "100%"}}>
                 <View style={styles.container}>
                     <View style={styles.logo}>
-                        <Image style={{ resizeMode: 'contain', width: 300 }} source={require('./assets/Logo/Logo3.png')} />
+                        <Image style={{ resizeMode: 'contain', width: 300 }} source={require('./assets/Logo/Logo.png')} />
                     </View>
                     <Pressable style={styles.bouton} onPress={() => this.state.pseudoTrouvee ? this.props.navigation.navigate('Menu', { pseudo: this.state.pseudo }) : this.props.navigation.navigate('CreationPseudo')}>
                         <Image style={{ resizeMode: 'contain', width: 250 }} source={require('./assets/Boutons/Jouer.png')} />
