@@ -116,7 +116,7 @@ class CreationNavires extends Component {
             ajout = true;
         } else if (this.state.flotte.length === 4 && this.state.navire.length === 5) {
             ajout = true;
-        } else {
+        } else if (this.state.flotte.length !== 5) {
             this.setState(s => s.messageErreur = "Votre navire n'est pas complet !")
             this.setState(s => s.erreur = true);
             setTimeout(() => this.setState(s => s.erreur = false), 3000);
@@ -149,29 +149,33 @@ class CreationNavires extends Component {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(this.state.flotte)
-                });
+                }).then(ret => {
+                    // Attente joueurAdverse
+                    setTimeout(() => {
+                        this.setState(s => s.messageErreur = "En attente du joueur adverse ...")
+                        this.setState(s => s.erreur = true);
+                    }, 3000);
 
-                // Attente joueurAdverse
-                setTimeout(() => {
-                    this.setState(s => s.messageErreur = "En attente du joueur adverse ...")
-                    this.setState(s => s.erreur = true);
-                }, 3000);
-
-                let joueurAdversePret = setInterval(() => {
-                    fetch(urlBase + '/partie/' + this.state.idPartie).then(
-                        ret => ret.json().then(
-                            rep => {
-                                if (rep.data.idDuel !== null) {
-                                    this.setState(s => s.erreur = false);
-                                    setTimeout(() => {
-                                        clearInterval(joueurAdversePret);
-                                        this.props.navigation.navigate('Jeux', { pseudo: this.state.pseudo, idDuel: rep.data.idDuel });
-                                    }, 10);
+                    let joueurAdversePret = setInterval(() => {
+                        fetch(urlBase + '/partie/' + this.state.idPartie).then(
+                            ret => ret.json().then(
+                                rep => {
+                                    if (rep.data.idDuel !== null) {
+                                        this.setState(s => s.erreur = false);
+                                        setTimeout(() => {
+                                            clearInterval(joueurAdversePret);
+                                            this.props.navigation.navigate('Jeux', { pseudo: this.state.pseudo, idDuel: rep.data.idDuel });
+                                        }, 10);
+                                    }
                                 }
-                            }
-                        )
-                    );
-                }, 5000);
+                            )
+                        ).catch(erreur => {});
+                    }, 5000);
+                }).catch(erreur => {
+                    setTimeout(() => {
+                        this.valider();
+                    }, 5000);
+                });
             }
         }, 10);
     }

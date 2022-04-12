@@ -41,9 +41,10 @@ class Jeux extends Component {
         this.aquiletour();
         this.navires();
 
-        this.recupInfo = setInterval(() => {
+        this.traitement = setInterval(() => {
             this.aquiletour();
             this.navires();
+            this.verifPartieTermine();
         }, 5000);
     }
 
@@ -59,13 +60,36 @@ class Jeux extends Component {
                 this.setState(s => s.message = "C'est le tour de votre adversaire");
                 this.setState(s => s.messageVisible = true);
             }
-        });
+        }).catch(erreur => { });
     }
 
     navires() {
         fetch(urlBase + "/duel/navires/" + this.state.idDuel + "/" + this.state.pseudo).then(reponse => reponse.json()).then(donnees => {
             this.setState(s => s.flotte = donnees.data);
-        });
+        }).catch(erreur => { });
+    }
+
+    verifPartieTermine() {
+        fetch(urlBase + "/duel/status/" + this.state.idDuel + "/" + this.state.pseudo).then(reponse => reponse.json()).then(donnees => {
+            if (donnees.data.status === "termine") {
+                clearInterval(this.traitement);
+                this.setState(s => s.messageVisible = false);
+
+                // Attente de la mise à jour de l'affichage des navires avant d'afficher le resultat
+                setTimeout(() => {
+                    if (donnees.data.victoire === "gagnant") {
+                        this.setState(s => s.victoire = true);
+                    } else if (donnees.data.victoire === "perdant") {
+                        this.setState(s => s.victoire = false);
+                    }
+                }, 1500);
+
+                // Retour au menu
+                setTimeout(() => {
+                    this.props.navigation.navigate('Menu', { pseudo: this.state.pseudo });
+                }, 10000);
+            }
+        }).catch(erreur => {});
     }
 
     tirer(tir) {
@@ -78,15 +102,6 @@ class Jeux extends Component {
             ret => {
                 if (ret.data.length === 0) {
                     this.setState(s => s.caseRate.push(tir));
-
-                    fetch(urlBase + "/duel/" + this.state.idDuel).then(reponse => reponse.json()).then(donnees => {
-                        console.log("Victoire");
-                        console.log("Récap du duel : ");
-                        console.log("Début : " + donnees.data.debut);
-                        console.log("Fin : " + donnees.data.fin);
-                        console.log(donnees.data.joueurA.nom + " : " + donnees.data.joueurA.victoire);
-                        console.log(donnees.data.joueurB.nom + " : " + donnees.data.joueurB.victoire);
-                    });
                 } else if (ret.data[0].includes(1)) {
                     this.setState(s => s.caseTouche.push(tir));
                 } else if (ret.data[0].includes(2)) {
@@ -111,31 +126,13 @@ class Jeux extends Component {
                     this.setState(s => s.caseRate.push(tir));
                 }
 
-                // Vérifier si la partie est terminé
-                fetch(urlBase + "/duel/status/" + this.state.idDuel + "/" + this.state.pseudo).then(reponse => reponse.json()).then(donnees => {
-                    if (donnees.data.status === "termine") {
-                        clearInterval(this.recupInfo);
-                        this.setState(s => s.messageVisible = false);
-
-                        // Attente de la mise à jour de l'affichage des navires avant d'afficher le resultat
-                        setTimeout(() => {
-                            if (donnees.data.victoire === "gagnant") {
-                                this.setState(s => s.victoire = true);
-                            } else if (donnees.data.victoire === "perdant") {
-                                this.setState(s => s.victoire = false);
-                            }
-                        }, 1500);
-
-                        // Retour au menu
-                        setTimeout(() => {
-                            this.props.navigation.navigate('Menu', { pseudo: this.state.pseudo });
-                        }, 10000);
-                    } else {
-                        this.aquiletour();
-                    }
-                });
+                this.aquiletour();
             }
-        )
+        ).catch(erreur => {
+            setTimeout(() => {
+                this.tirer(tir);
+            }, 5000);
+        });
     }
 
     setCouleur(coordonnee) {

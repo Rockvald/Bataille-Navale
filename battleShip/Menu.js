@@ -6,7 +6,8 @@ import {
     StyleSheet,
     Image,
     ScrollView,
-    Text
+    Text,
+    Modal
 } from 'react-native';
 import { Component } from 'react/cjs/react.production.min';
 
@@ -18,16 +19,12 @@ class Menu extends Component {
 
         this.state = {
             pseudo: props.route.params.pseudo,
+            erreur: false,
+            messageErreur: "",
             partiesAttenteJoueur: []
         };
 
-        fetch(urlBase + '/partie/attentejoueur').then(
-            ret => ret.json().then(
-                rep => {
-                    this.setState(s => s.partiesAttenteJoueur = rep.data);
-                }
-            )
-        );
+        this.recupParties();
 
         this.recupPartiesAttenteJoueur = setInterval(() => {
             // Mise à jour du pseudo en cas de modification de celui-ci
@@ -35,18 +32,30 @@ class Menu extends Component {
                 this.setState(s => s.pseudo = this.props.route.params.pseudo);
             }
 
-            fetch(urlBase + '/partie/attentejoueur').then(
-                ret => ret.json().then(
-                    rep => {
-                        this.setState(s => s.partiesAttenteJoueur = rep.data);
-                    }
-                )
-            );
-        }, 10000);
+            this.recupParties();
+        }, 5000);
     }
 
     componentWillUnmount() {
         clearInterval(this.recupPartiesAttenteJoueur);
+    }
+
+    erreurReseau(erreur) {
+        if (erreur.message === "Network request failed" && !this.state.erreur) {
+            this.setState(s => s.messageErreur = "La connexion au serveur a été perdu ...")
+            this.setState(s => s.erreur = true);
+        }
+    }
+
+    recupParties() {
+        fetch(urlBase + '/partie/attentejoueur').then(
+            ret => ret.json().then(
+                rep => {
+                    this.setState(s => s.erreur = false);
+                    this.setState(s => s.partiesAttenteJoueur = rep.data);
+                }
+            )
+        ).catch(erreur => this.erreurReseau(erreur));
     }
 
     creerPartie() {
@@ -56,7 +65,7 @@ class Menu extends Component {
                     this.props.navigation.navigate('CreationNavires', { pseudo: this.state.pseudo, idPartie: rep.data });
                 }
             )
-        );
+        ).catch(erreur => this.erreurReseau(erreur));
     }
 
     rejoindrePartie(idPartie) {
@@ -66,12 +75,22 @@ class Menu extends Component {
                     this.props.navigation.navigate('CreationNavires', { pseudo: this.state.pseudo, idPartie: idPartie });
                 }
             )
-        );
+        ).catch(erreur => this.erreurReseau(erreur));
     }
 
     render() {
         return (
             <ImageBackground source={require('./assets/Background/backgroundMenu.png')} resizeMode="cover" style={{ height: "100%" }}>
+                <Modal
+                    animationType="fade"
+                    transparent={true}
+                    visible={this.state.erreur}
+                >
+                    <View style={styles.modalView}>
+                        <Image style={styles.fondErreur} source={require('./assets/Boutons/BoutonSansTexte.png')} />
+                        <Text style={styles.erreur}>{this.state.messageErreur}</Text>
+                    </View>
+                </Modal>
                 <View style={styles.container}>
                     <ScrollView style={styles.partiesCreer}>
                         {
@@ -108,6 +127,23 @@ const styles = StyleSheet.create({
         height: '100%',
         justifyContent: 'space-around',
         alignItems: 'center'
+    },
+    modalView: {
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 103
+    },
+    fondErreur: {
+        position: 'relative',
+        top: 98,
+        resizeMode: 'contain',
+        width: 210
+    },
+    erreur: {
+        textAlign: 'center',
+        color: '#ffffff',
+        width: "50%",
+        padding: 10
     },
     partiesCreer: {
         flexGrow: 0,
