@@ -131,15 +131,16 @@ const styles = StyleSheet.create({
     modalView: {
         justifyContent: "center",
         alignItems: "center",
-        marginTop: 103
+        height: '100%',
+        backgroundColor: 'rgba(0, 0, 0, 0.3)'
     },
     fondErreur: {
-        position: 'relative',
-        top: 98,
         resizeMode: 'contain',
         width: 210
     },
     erreur: {
+        position: 'relative',
+        bottom: 98,
         textAlign: 'center',
         color: '#ffffff',
         width: "50%",

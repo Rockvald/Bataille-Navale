@@ -60,13 +60,13 @@ class Jeux extends Component {
                 this.setState(s => s.message = "C'est le tour de votre adversaire");
                 this.setState(s => s.messageVisible = true);
             }
-        }).catch(erreur => { });
+        }).catch(erreur => {});
     }
 
     navires() {
         fetch(urlBase + "/duel/navires/" + this.state.idDuel + "/" + this.state.pseudo).then(reponse => reponse.json()).then(donnees => {
             this.setState(s => s.flotte = donnees.data);
-        }).catch(erreur => { });
+        }).catch(erreur => {});
     }
 
     verifPartieTermine() {

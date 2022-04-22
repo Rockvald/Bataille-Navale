@@ -1,11 +1,19 @@
 module.exports = app => {
     var router = require('express').Router();
 
+    const Database = require('./Classes/Database');
+    var database = new Database();
+
     const Duel = require('./Classes/Duel');
     const Joueur = require('./Classes/Joueur');
     const Navire = require('./Classes/Navire');
     var batailleNavale = require("./Classes/BatailleNavale");
     var bn = new batailleNavale();
+
+    //------------------------------------------------
+    // Récupérer les parties stocké en base de données
+    //------------------------------------------------
+    database.lire('duels').then(donnees => bn.duels = donnees);
 
     //------------------------------------------------
     // Récupérer tous les duels
@@ -132,7 +140,9 @@ module.exports = app => {
         let duel = new Duel();
         duel.ajouterJoueurs(joueurA, joueurB);
         duel.status = "demarree";
+
         bn.ajouterDuel(duel);
+        database.creer('duels', duel);
 
         res.status(200).json({
             action: "ajout",
@@ -151,6 +161,16 @@ module.exports = app => {
         let reponse = bn.evaluer(id, joueur, tir);
 
         let duel = bn.trouverDuel(id);
+
+        // Sauvegarde du nouvel état du duel
+        let donnees = {
+            fin: duel.fin,
+            status: duel.status,
+            joueurA: duel.joueurA,
+            joueurB: duel.joueurB
+        };
+        database.modifier('duels', {id: duel.id}, {$set: donnees});
+
         let joueurAdverse = bn.trouverAdversaire(duel, joueur);
         for (let nv of joueurAdverse.navires) {
             nv.positions.forEach(position => {
@@ -188,6 +208,7 @@ module.exports = app => {
             if (bn.duels[i].id === parseInt(req.params.id)) {
                 // Sauvegarder le duel avant
                 bn.duels.splice(i, 1);
+                database.supprimer('duels', {id: parseInt(req.params.id)});
                 break;
             }
         }

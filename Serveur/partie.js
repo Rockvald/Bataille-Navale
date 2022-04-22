@@ -2,99 +2,108 @@ module.exports = app => {
     var router = require('express').Router();
     const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
+    const Database = require('./Classes/Database');
+    var database = new Database();
+
     //------------------------------------------------
     // Parties enregistré par defauts 
     //------------------------------------------------
-    let parties = [
+    // let parties = [
         // Partie tout juste créer
-        {
-            id: 1,
-            idDuel: null,
-            status: 'attenteJoueurB',
-            joueurA: {
-                nom: 'karim',
-                positions: []
-            },
-            joueurB: {
-                nom: '',
-                positions: []
-            },
-        },
+        // {
+        //     id: 1,
+        //     idDuel: null,
+        //     status: 'attenteJoueurB',
+        //     joueurA: {
+        //         nom: 'karim',
+        //         positions: []
+        //     },
+        //     joueurB: {
+        //         nom: '',
+        //         positions: []
+        //     },
+        // },
         // Le joueurA a ajouté ses navires, mais il n'y a pas encore de joueurB
-        {
-            id: 2,
-            idDuel: null,
-            status: 'attenteJoueurB',
-            joueurA: {
-                nom: 'karim',
-                positions: [
-                    [[0, 0], [0, 1], [0, 2]],
-                    [[2, 0], [2, 1], [2, 2]],
-                ]
-            },
-            joueurB: {
-                nom: '',
-                positions: []
-            },
-        },
+        // {
+        //     id: 2,
+        //     idDuel: null,
+        //     status: 'attenteJoueurB',
+        //     joueurA: {
+        //         nom: 'karim',
+        //         positions: [
+        //             [[0, 0], [0, 1], [0, 2]],
+        //             [[2, 0], [2, 1], [2, 2]],
+        //         ]
+        //     },
+        //     joueurB: {
+        //         nom: '',
+        //         positions: []
+        //     },
+        // },
         // Le joueurB à rejoint la partie, et aucun des deux joueurs n'a donnée ses navires
-        {
-            id: 3,
-            idDuel: null,
-            status: 'attenteNavires',
-            joueurA: {
-                nom: 'karim',
-                positions: []
-            },
-            joueurB: {
-                nom: 'julien',
-                positions: []
-            },
-        },
+        // {
+        //     id: 3,
+        //     idDuel: null,
+        //     status: 'attenteNavires',
+        //     joueurA: {
+        //         nom: 'karim',
+        //         positions: []
+        //     },
+        //     joueurB: {
+        //         nom: 'julien',
+        //         positions: []
+        //     },
+        // },
         // L'un des joueurs n'a pas encore donnée ses navires
-        {
-            id: 4,
-            idDuel: null,
-            status: 'attenteNavires',
-            joueurA: {
-                nom: 'karim',
-                positions: []
-            },
-            joueurB: {
-                nom: 'julien',
-                positions: [
-                    [[3, 5], [4, 5], [5, 5]],
-                    [[8, 5], [8, 6], [8, 7]],
-                    [[9, 1], [9, 2]],
-                    [[1, 1], [2, 1], [3, 1], [4, 1], [5, 1]],
-                    [[2, 6], [2, 7], [2, 8], [2, 9]],
-                ]
-            },
-        },
+        // {
+        //     id: 4,
+        //     idDuel: null,
+        //     status: 'attenteNavires',
+        //     joueurA: {
+        //         nom: 'karim',
+        //         positions: []
+        //     },
+        //     joueurB: {
+        //         nom: 'julien',
+        //         positions: [
+        //             [[3, 5], [4, 5], [5, 5]],
+        //             [[8, 5], [8, 6], [8, 7]],
+        //             [[9, 1], [9, 2]],
+        //             [[1, 1], [2, 1], [3, 1], [4, 1], [5, 1]],
+        //             [[2, 6], [2, 7], [2, 8], [2, 9]],
+        //         ]
+        //     },
+        // },
         // Les deux joueurs sont présent et ont donnée leur navires, la partie à commencé
-        {
-            id: 5,
-            idDuel: 317,
-            status: 'commencé',
-            joueurA: {
-                nom: 'karim',
-                positions: [
-                    [[0, 0], [0, 1], [0, 2]],
-                    [[2, 0], [2, 1], [2, 2]],
-                ]
-            },
-            joueurB: {
-                nom: 'julien',
-                positions: [
-                    [[3, 5], [4, 5], [5, 5]],
-                    [[8, 5], [8, 6], [8, 7]],
-                    [[9, 1], [9, 2]],
-                    [[1, 1], [2, 1], [3, 1], [4, 1], [5, 1]],
-                    [[2, 6], [2, 7], [2, 8], [2, 9]],
-                ]
-            },
-        },
-    ]
+    //     {
+    //         id: 5,
+    //         idDuel: 317,
+    //         status: 'commencé',
+    //         joueurA: {
+    //             nom: 'karim',
+    //             positions: [
+    //                 [[0, 0], [0, 1], [0, 2]],
+    //                 [[2, 0], [2, 1], [2, 2]],
+    //             ]
+    //         },
+    //         joueurB: {
+    //             nom: 'julien',
+    //             positions: [
+    //                 [[3, 5], [4, 5], [5, 5]],
+    //                 [[8, 5], [8, 6], [8, 7]],
+    //                 [[9, 1], [9, 2]],
+    //                 [[1, 1], [2, 1], [3, 1], [4, 1], [5, 1]],
+    //                 [[2, 6], [2, 7], [2, 8], [2, 9]],
+    //             ]
+    //         },
+    //     },
+    // ]
+
+    //------------------------------------------------
+    // Récupérer les parties stocké en base de données
+    //------------------------------------------------
+    let parties = [];
+    database.lire('parties').then(donnees => parties = donnees);
 
     //------------------------------------------------
     // Récupérer toutes les parties
@@ -165,7 +174,9 @@ module.exports = app => {
                 positions: []
             },
         };
-        parties.push(partie)
+
+        parties.push(partie);
+        database.creer('parties', partie);
 
         res.status(200).json({
             action: "ajout",
@@ -182,6 +193,14 @@ module.exports = app => {
             if (partie.id === parseInt(req.params.id)) {
                 partie.joueurB.nom = req.params.joueur;
                 partie.status = "attenteNavires";
+
+                let donnees = {
+                    joueurB: partie.joueurB,
+                    status: partie.status
+                }
+
+                database.modifier('parties', {id: parseInt(req.params.id)}, {$set: donnees});
+
                 break;
             }
         }
@@ -199,15 +218,18 @@ module.exports = app => {
     router.put('/ajouternavires/:id/:joueur', (req, res) => {
         for (let partie of parties) {
             if (partie.id === parseInt(req.params.id)) {
+                let donnees = {};
+
                 if (partie.joueurA.nom === req.params.joueur) {
                     partie.joueurA.positions = req.body;
+                    donnees.joueurA = partie.joueurA;
                 } else if (partie.joueurB.nom === req.params.joueur) {
                     partie.joueurB.positions = req.body;
+                    donnees.joueurB = partie.joueurB;
                 }
 
                 if (partie.joueurA.positions.length > 0 && partie.joueurB.positions.length > 0) {
-                    let url = "http://localhost:4000/duel/creer"
-                    fetch(url, {
+                    fetch("http://localhost:4000/duel/creer", {
                         method: "post",
                         headers: {
                             'Accept': 'application/json',
@@ -216,10 +238,15 @@ module.exports = app => {
                         body: JSON.stringify(partie)
                     }).then(ret => ret.json()).then(rep => {
                         partie.idDuel = rep.data;
+                        donnees.idDuel = partie.idDuel;
+                        database.modifier('parties', {id: parseInt(req.params.id)}, {$set: donnees});
                     });
 
                     partie.status = "commencé";
+                    donnees.status = partie.status;
                 }
+
+                database.modifier('parties', {id: parseInt(req.params.id)}, {$set: donnees});
 
                 break;
             }
@@ -239,6 +266,7 @@ module.exports = app => {
         for (let i = 0; i < parties.length; i++) {
             if (parties[i].id === parseInt(req.params.id)) {
                 parties.splice(i, 1);
+                database.supprimer('parties', {id: parseInt(req.params.id)});
                 break;
             }
         }
